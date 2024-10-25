@@ -1,0 +1,95 @@
+#include <fstream>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    ifstream fin("level5_example.in");
+    ofstream fout("level5_example.out");
+
+    long long N;
+    fin >> N;
+    
+    for (int i = 0; i < N; i++) {
+        long long x, y, beds;
+        fin >> x >> y >> beds;
+
+        vector<vector<char>> matrix(y, vector<char>(x, '.'));
+
+        long long placedDesks = 0;
+
+        // Fill the matrix with desks
+        for (long long j = 0; j < y && placedDesks < beds; j++) {
+            for (long long k = 0; k < x && placedDesks < beds; k++) {
+                // Try to place a desk horizontally
+                if (k + 1 < x && matrix[j][k] == '.' && matrix[j][k + 1] == '.') {
+                    // Check surrounding cells to ensure no touching
+                    bool canPlace = true;
+                    for (long long dy = -1; dy <= 1; dy++) {
+                        for (long long dx = -1; dx <= 1; dx++) {
+                            if ((dy == 0 && dx >= 0 && dx <= 1) || (dy == 1 && dx == 0)) continue; // Skip the current desk cells
+                            long long newY = j + dy;
+                            long long newX = k + dx;
+                            if (newY >= 0 && newY < y && newX >= 0 && newX < x) {
+                                if (matrix[newY][newX] == 'X') {
+                                    canPlace = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!canPlace) break;
+                    }
+
+                    // Place the desk if possible
+                    if (canPlace) {
+                        matrix[j][k] = 'X';
+                        matrix[j][k + 1] = 'X';
+                        placedDesks++;
+                    }
+                }
+
+                // Try to place a desk vertically
+                if (placedDesks < beds && j + 1 < y && matrix[j][k] == '.' && matrix[j + 1][k] == '.') {
+                    // Check surrounding cells to ensure no touching
+                    bool canPlace = true;
+                    for (long long dy = -1; dy <= 1; dy++) {
+                        for (long long dx = -1; dx <= 0; dx++) {
+                            if ((dx == 0 && dy >= 0 && dy <= 1) || (dy == 1 && dx == 0)) continue; // Skip the current desk cells
+                            long long newY = j + dy;
+                            long long newX = k + dx;
+                            if (newY >= 0 && newY < y && newX >= 0 && newX < x) {
+                                if (matrix[newY][newX] == 'X') {
+                                    canPlace = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!canPlace) break;
+                    }
+
+                    // Place the desk if possible
+                    if (canPlace) {
+                        matrix[j][k] = 'X';
+                        matrix[j + 1][k] = 'X';
+                        placedDesks++;
+                    }
+                }
+            }
+        }
+
+        // Output the matrix
+        for (const auto &row : matrix) {
+            for (char value : row) {
+                fout << value;
+            }
+            fout << endl;
+        }
+
+        fout << endl << endl;
+    }
+
+    fin.close();
+    fout.close();
+
+    return 0;
+}
